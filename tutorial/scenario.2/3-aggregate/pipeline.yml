@@ -1,0 +1,31 @@
+---
+resources:
+  - name: super-app
+    type: git
+    source:
+      uri: https://github.com/DiSiqueira/concourse-tutorial.git
+      branch: master
+
+jobs:
+  - name: Testing
+    plan:
+    - get: super-app
+      trigger: true
+    - aggregate:
+      - task: lint
+        file: super-app/files/lint.yml        
+
+      - task: unit
+        file: super-app/files/unit.yml
+
+  - name: Building & integeration testing
+    plan:
+    - get: super-app
+      passed: ["Testing"]
+      trigger: true
+
+    - task: build
+      file: super-app/files/build.yml
+
+    - task: integeration test
+      file: super-app/files/inte.yml
